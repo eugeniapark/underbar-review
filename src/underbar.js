@@ -59,7 +59,7 @@
       }
     } else if (typeof collection === 'object') {
       for (var key in collection) {
-        iterator (collection[key], key, collection);
+        iterator(collection[key], key, collection);
       }
     }
   };
@@ -77,7 +77,6 @@
         result = index;
       }
     });
-
     return result;
   };
 
@@ -85,11 +84,10 @@
   _.filter = function(collection, test) {
     var result = [];
     _.each(collection, function(value, index) {
-      if (test(value) === true) {
+      if (test(value)) {
         result.push(value);
       }
-    });
-
+    });  
     return result;
   };
 
@@ -245,11 +243,25 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    _.each(arguments, function(properties) {
+      _.each(properties, function(value, key) {
+        obj[key] = value;
+      });
+    });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(arguments, function(properties) {
+      _.each(properties, function(value, key) {
+        if (obj[key] === undefined) {
+          obj[key] = value;
+        }
+      });
+    });
+    return obj;
   };
 
 
@@ -293,6 +305,15 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var result = {};
+    
+    return function() {
+      var key = JSON.stringify(arguments);
+      if (!result[key]) {
+        result[key] = func.apply(this, arguments);
+      }
+      return result[key];
+    }
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -302,6 +323,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = Array.prototype.slice.call(arguments, 2);  //var args = [].slice.call(arguments)
+    
+    setTimeout(function () {
+      func.apply(this, args);
+    }, wait);
   };
 
 
@@ -316,6 +342,13 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var arr = array.slice();
+    var min = -1;
+    var max = 1;
+
+    return arr.sort(function (a, b) {
+      return Math.random() * (max - min) + min;
+    });
   };
 
 
